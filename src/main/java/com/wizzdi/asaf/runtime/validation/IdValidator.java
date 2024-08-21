@@ -104,7 +104,7 @@ public class IdValidator implements ConstraintValidator<IdValid, Object> {
           break;
         }
       }
-      if (propertyDescriptor == null) {
+      if (propertyDescriptor != null) {
         idGettersCache.put(canonicalName, propertyDescriptor);
       }
     }
@@ -126,7 +126,7 @@ public class IdValidator implements ConstraintValidator<IdValid, Object> {
           break;
         }
       }
-      if (propertyDescriptor == null) {
+      if (propertyDescriptor != null) {
         creatorGettersCache.put(canonicalName, propertyDescriptor);
       }
     }

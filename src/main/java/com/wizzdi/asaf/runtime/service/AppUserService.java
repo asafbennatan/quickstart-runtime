@@ -32,7 +32,7 @@ public class AppUserService {
    */
   public AppUser createAppUser(AppUserCreate appUserCreate, UserSecurityContext securityContext) {
     AppUser appUser = createAppUserNoMerge(appUserCreate, securityContext);
-    this.repository.merge(appUser);
+    appUser = this.repository.merge(appUser);
     return appUser;
   }
 
@@ -87,7 +87,7 @@ public class AppUserService {
   public AppUser updateAppUser(AppUserUpdate appUserUpdate, UserSecurityContext securityContext) {
     AppUser appUser = appUserUpdate.getAppUser();
     if (updateAppUserNoMerge(appUser, appUserUpdate)) {
-      this.repository.merge(appUser);
+      appUser = this.repository.merge(appUser);
     }
     return appUser;
   }
@@ -127,7 +127,7 @@ public class AppUserService {
     return appUser;
   }
 
-  public <T, I> List<T> listByIds(
+  public <T extends AppUser, I> List<T> listByIds(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       Set<I> ids,
@@ -135,7 +135,7 @@ public class AppUserService {
     return repository.listByIds(c, idField, ids, securityContext);
   }
 
-  public <T, I> T getByIdOrNull(
+  public <T extends AppUser, I> T getByIdOrNull(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       I id,
@@ -143,16 +143,18 @@ public class AppUserService {
     return repository.getByIdOrNull(c, idField, id, securityContext);
   }
 
-  public <T, I> T getByIdOrNull(Class<T> c, SingularAttribute<? super T, I> idField, I id) {
+  public <T extends AppUser, I> T getByIdOrNull(
+      Class<T> c, SingularAttribute<? super T, I> idField, I id) {
     return repository.getByIdOrNull(c, idField, id);
   }
 
-  public <T, I> List<T> listByIds(Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
+  public <T extends AppUser, I> List<T> listByIds(
+      Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
     return repository.listByIds(c, idField, ids);
   }
 
-  public void merge(java.lang.Object base) {
-    this.repository.merge(base);
+  public <T> T merge(T base) {
+    return this.repository.merge(base);
   }
 
   public void massMerge(List<?> toMerge) {

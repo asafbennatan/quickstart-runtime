@@ -2,9 +2,11 @@ package com.wizzdi.asaf.runtime.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wizzdi.asaf.runtime.model.AppUser;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Optional;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserSecurityContext implements UserDetails {
@@ -16,7 +18,11 @@ public class UserSecurityContext implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.emptyList();
+
+    return Optional.ofNullable(appUser.getRoles()).map(f -> f.split(",")).stream()
+        .flatMap(Arrays::stream)
+        .map(f -> new SimpleGrantedAuthority("ROLE_" + f.trim()))
+        .toList();
   }
 
   @JsonIgnore

@@ -2,14 +2,9 @@ package com.wizzdi.asaf.runtime.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,22 +37,22 @@ public class JwtTokenUtils {
 
     String id = user.getId();
     return Jwts.builder()
-        .setSubject(String.format("%s,%s", id, user.getUsername()))
-        .setIssuer(jwtIssuer)
-        .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + this.jwtDefaultExpiration)) // 1 week
+        .subject(String.format("%s,%s", id, user.getUsername()))
+        .issuer(jwtIssuer)
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + this.jwtDefaultExpiration)) // 1 week
         .claim(ID, id)
         .signWith(cachedJWTSecret)
         .compact();
   }
 
   public String getId(Jws<Claims> claimsJws) {
-    return (String) claimsJws.getBody().get(ID);
+    return (String) claimsJws.getPayload().get(ID);
   }
 
   public Jws<Claims> getClaims(String token) {
     try {
-      return jwtParser.parseClaimsJws(token);
+      return jwtParser.parseSignedClaims(token);
     } catch (MalformedJwtException ex) {
       logger.error("Invalid JWT token - {}", ex.getMessage());
     } catch (ExpiredJwtException ex) {
@@ -72,10 +67,10 @@ public class JwtTokenUtils {
 
   @Configuration
   public static class JwtConfiguration {
-    @Value("${security.jwt.secretLocation:/home/project/secret.jwt }")
-    private String jwtTokenSecretLocation;
 
-    @Value("${security.jwt.secret:#{null}}")
+    @Value(
+        "${security.jwt.secret:pmdb7YgeHgcaGkk5kgZmVYG79K+WHF2CgcbN+m83vzf4O5X2v//v44NJjP/iiX5+fqIIFBFKEBACJGwGMLAWfQ=="
+            + " }")
     private String jwtTokenSecret;
 
     @Bean
@@ -87,32 +82,12 @@ public class JwtTokenUtils {
 
     @Bean
     public JwtParser jwtParser(@Qualifier("cachedJWTSecret") SecretKey cachedJWTSecret) {
-      return Jwts.parserBuilder().setSigningKey(cachedJWTSecret).build();
+      return Jwts.parser().verifyWith(cachedJWTSecret).build();
     }
 
     private SecretKey getJWTSecret() {
-      if (jwtTokenSecret != null) {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtTokenSecret));
-      }
-      File file = new File(jwtTokenSecretLocation);
-      if (file.exists()) {
-        try {
-          String cachedJWTSecretStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-          return Keys.hmacShaKeyFor(Decoders.BASE64.decode(cachedJWTSecretStr));
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-      SecretKey cachedJWTSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-      try {
-        String secret = Encoders.BASE64.encode(cachedJWTSecret.getEncoded());
-        FileUtils.write(file, secret, StandardCharsets.UTF_8);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-
-      return cachedJWTSecret;
+      return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtTokenSecret));
     }
   }
 }

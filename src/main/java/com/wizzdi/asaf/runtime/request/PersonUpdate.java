@@ -8,9 +8,9 @@ import com.wizzdi.asaf.runtime.validation.Update;
 /** Object Used to Update Person */
 @IdValid.List({
   @IdValid(
-      targetField = "person",
       field = "id",
       fieldType = Person.class,
+      targetField = "person",
       groups = {Update.class})
 })
 public class PersonUpdate extends PersonCreate {

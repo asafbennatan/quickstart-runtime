@@ -96,7 +96,7 @@ public class PersonRepository {
     em.remove(o);
   }
 
-  public <T, I> List<T> listByIds(
+  public <T extends Person, I> List<T> listByIds(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       Set<I> ids,
@@ -111,15 +111,17 @@ public class PersonRepository {
     return em.createQuery(q).getResultList();
   }
 
-  public <T, I> T getByIdOrNull(Class<T> c, SingularAttribute<? super T, I> idField, I id) {
+  public <T extends Person, I> T getByIdOrNull(
+      Class<T> c, SingularAttribute<? super T, I> idField, I id) {
     return getByIdOrNull(c, idField, id, null);
   }
 
-  public <T, I> List<T> listByIds(Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
+  public <T extends Person, I> List<T> listByIds(
+      Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
     return listByIds(c, idField, ids, null);
   }
 
-  public <T, I> T getByIdOrNull(
+  public <T extends Person, I> T getByIdOrNull(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       I id,
@@ -130,16 +132,17 @@ public class PersonRepository {
   }
 
   @Transactional
-  public void merge(java.lang.Object base) {
-    em.merge(base);
-    applicationEventPublisher.publishEvent(base);
+  public <T> T merge(T base) {
+    T updated = em.merge(base);
+    applicationEventPublisher.publishEvent(updated);
+    return updated;
   }
 
   @Transactional
   public void massMerge(List<?> toMerge) {
     for (Object o : toMerge) {
-      em.merge(o);
-      applicationEventPublisher.publishEvent(o);
+      java.lang.Object updated = em.merge(o);
+      applicationEventPublisher.publishEvent(updated);
     }
   }
 }

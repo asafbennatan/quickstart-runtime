@@ -8,9 +8,9 @@ import com.wizzdi.asaf.runtime.validation.Update;
 /** Object Used to Update AppUser */
 @IdValid.List({
   @IdValid(
-      targetField = "appUser",
       field = "id",
       fieldType = AppUser.class,
+      targetField = "appUser",
       groups = {Update.class})
 })
 public class AppUserUpdate extends AppUserCreate {

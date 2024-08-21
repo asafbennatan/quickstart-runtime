@@ -29,7 +29,7 @@ public class PersonService {
    */
   public Person createPerson(PersonCreate personCreate, UserSecurityContext securityContext) {
     Person person = createPersonNoMerge(personCreate, securityContext);
-    this.repository.merge(person);
+    person = this.repository.merge(person);
     return person;
   }
 
@@ -78,7 +78,7 @@ public class PersonService {
   public Person updatePerson(PersonUpdate personUpdate, UserSecurityContext securityContext) {
     Person person = personUpdate.getPerson();
     if (updatePersonNoMerge(person, personUpdate)) {
-      this.repository.merge(person);
+      person = this.repository.merge(person);
     }
     return person;
   }
@@ -117,7 +117,7 @@ public class PersonService {
     return person;
   }
 
-  public <T, I> List<T> listByIds(
+  public <T extends Person, I> List<T> listByIds(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       Set<I> ids,
@@ -125,7 +125,7 @@ public class PersonService {
     return repository.listByIds(c, idField, ids, securityContext);
   }
 
-  public <T, I> T getByIdOrNull(
+  public <T extends Person, I> T getByIdOrNull(
       Class<T> c,
       SingularAttribute<? super T, I> idField,
       I id,
@@ -133,16 +133,18 @@ public class PersonService {
     return repository.getByIdOrNull(c, idField, id, securityContext);
   }
 
-  public <T, I> T getByIdOrNull(Class<T> c, SingularAttribute<? super T, I> idField, I id) {
+  public <T extends Person, I> T getByIdOrNull(
+      Class<T> c, SingularAttribute<? super T, I> idField, I id) {
     return repository.getByIdOrNull(c, idField, id);
   }
 
-  public <T, I> List<T> listByIds(Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
+  public <T extends Person, I> List<T> listByIds(
+      Class<T> c, SingularAttribute<? super T, I> idField, Set<I> ids) {
     return repository.listByIds(c, idField, ids);
   }
 
-  public void merge(java.lang.Object base) {
-    this.repository.merge(base);
+  public <T> T merge(T base) {
+    return this.repository.merge(base);
   }
 
   public void massMerge(List<?> toMerge) {

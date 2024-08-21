@@ -5,12 +5,14 @@
 replicaCount: 1
 
 image:
-  repository: registry.docker.wizzdi.com/my-cloned-apps-workspace/quickstart
+  repository: harbor.manage.cluster.wizzdi.com/my-cloned-apps-workspace/quickstart
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.0.1"
+  tag: "0.0.2"
 
-imagePullSecrets: []
+imagePullSecrets:
+- name: regcred
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -67,10 +69,13 @@ env:
 
 ingress:
   enabled: true
-  className: ""
-  annotations: 
-     kubernetes.io/ingress.class: traefik
-     cert-manager.io/cluster-issuer: letsencrypt-prod
+  className: nginx
+  annotations:
+     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+     nginx.ingress.kubernetes.io/rewrite-target: /
+     cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
 
   hosts:
     - host: quickstart.my-cloned-apps-workspace.cluster.wizzdi.com
